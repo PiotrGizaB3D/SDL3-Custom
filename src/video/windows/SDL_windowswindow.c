@@ -20,6 +20,8 @@
 */
 #include "SDL_internal.h"
 
+#define MARIAN_BLOCK_SETWINDOWPOSINTERNAL
+
 #ifdef SDL_VIDEO_DRIVER_WINDOWS
 
 #include "../../core/windows/SDL_windows.h"
@@ -240,6 +242,7 @@ static void WIN_AdjustWindowRect(SDL_Window *window, int *x, int *y, int *width,
 
 int WIN_SetWindowPositionInternal(SDL_Window *window, UINT flags)
 {
+#ifndef MARIAN_BLOCK_SETWINDOWPOSINTERNAL
     SDL_Window *child_window;
     SDL_WindowData *data = window->driverdata;
     HWND hwnd = data->hwnd;
@@ -270,6 +273,7 @@ int WIN_SetWindowPositionInternal(SDL_Window *window, UINT flags)
         }
     }
     return result;
+#endif
 }
 
 static void SDLCALL WIN_MouseRelativeModeCenterChanged(void *userdata, const char *name, const char *oldValue, const char *hint)
@@ -781,12 +785,12 @@ int WIN_SetWindowPosition(SDL_VideoDevice *_this, SDL_Window *window)
      * the window to resize (e.g. AdjustWindowRectExForDpi frame sizes are different).
      */
     WIN_ConstrainPopup(window);
-    return WIN_SetWindowPositionInternal(window, window->driverdata->copybits_flag | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+    return WIN_SetWindowPositionInternal(window, window->driverdata->copybits_flag | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
 }
 
 void WIN_SetWindowSize(SDL_VideoDevice *_this, SDL_Window *window)
 {
-    WIN_SetWindowPositionInternal(window, window->driverdata->copybits_flag | SWP_NOMOVE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+    WIN_SetWindowPositionInternal(window, window->driverdata->copybits_flag | SWP_NOMOVE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
 }
 
 int WIN_GetWindowBordersSize(SDL_VideoDevice *_this, SDL_Window *window, int *top, int *left, int *bottom, int *right)
